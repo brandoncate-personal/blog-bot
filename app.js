@@ -23,7 +23,7 @@ module.exports = robot => {
         // create a comment
         const params = context.issue({
             title: "bot issue",
-            body: data
+            body: JSON.stringify(data)
         });
         // publish it test
         return context.octokit.issues.create(params);
