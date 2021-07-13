@@ -31,21 +31,19 @@ module.exports = robot => {
         const response = await fetch(`https://us-central1-test-1-300600.cloudfunctions.net/my-service-dev-first?repo=${repo}`);
         const data = await response.json();
 
-        return data.data.map(content => {
-            page = {
+        robot.log.info(data)
+
+        data.data.map(async content => {
+            const page = {
                 branch: data.branch,
                 repo: data.repo,
                 ...content,
             }
             // .add() will automatically assign an ID
-            return firestore.collection(COLLECTION_NAME).add(page)
-                .then(doc => {
-                    console.info('stored new doc id#', doc.id);
-                    return;
-                }).catch(err => {
-                    console.error(err);
-                    return;
-                });
+            const doc = await firestore.collection(COLLECTION_NAME).add(page)
+            robot.log.info(doc)
         })
+
+        return
     })
 }
