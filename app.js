@@ -26,12 +26,15 @@ module.exports = robot => {
     });
 
     robot.on('push', async context => {
+        console.log('starting push execution')
+        
         const { url: repo } = context.payload.repository;
 
         const response = await fetch(`https://us-central1-test-1-300600.cloudfunctions.net/my-service-dev-first?repo=${repo}`);
         const data = await response.json();
 
         robot.log.info(data)
+        console.log(data)
 
         data.data.map(async content => {
             const page = {
@@ -42,6 +45,7 @@ module.exports = robot => {
             // .add() will automatically assign an ID
             const doc = await firestore.collection(COLLECTION_NAME).add(page)
             robot.log.info(doc)
+            console.log(doc)
         })
 
         return
