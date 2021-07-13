@@ -25,7 +25,7 @@ module.exports = robot => {
             title: "bot issue",
             body: data
         });
-        // publish it
+        // publish it test
         return context.octokit.issues.create(params);
     })
 }
