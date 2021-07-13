@@ -1,4 +1,15 @@
+const Firestore = require('@google-cloud/firestore');
+
 const fetch = require('node-fetch');
+
+// Use your project ID here
+const PROJECTID = 'test-1-300600';
+const COLLECTION_NAME = 'pages';
+
+const firestore = new Firestore({
+    projectId: PROJECTID,
+    timestampsInSnapshots: true
+});
 
 module.exports = robot => {
     robot.on('issues.opened', async context => {
@@ -20,12 +31,21 @@ module.exports = robot => {
         const response = await fetch(`https://us-central1-test-1-300600.cloudfunctions.net/my-service-dev-first?repo=${repo}`);
         const data = await response.json();
 
-        // create a comment
-        const params = context.issue({
-            title: "bot issue",
-            body: JSON.stringify(data)
-        });
-        // publish it test
-        return context.octokit.issues.create(params);
+        return data.data.map(content => {
+            page = {
+                branch: data.branch,
+                repo: data.repo,
+                ...content,
+            }
+            // .add() will automatically assign an ID
+            return firestore.collection(COLLECTION_NAME).add(page)
+                .then(doc => {
+                    console.info('stored new doc id#', doc.id);
+                    return;
+                }).catch(err => {
+                    console.error(err);
+                    return;
+                });
+        })
     })
 }
